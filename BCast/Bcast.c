@@ -10,6 +10,7 @@ Note: data_size will be in powers of 2. you just need to put power. for example 
 #include <unistd.h>
 #include <math.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 
 double  Mean(double[], int);
@@ -21,6 +22,8 @@ void printArray(int arr[], int size);
 void ring(int arr[], int n, int myid, int procs);
 void binary_tree(int arr[], int n, int myid, int procs);
 void binomial_tree(int arr[], int n, int myid, int procs);
+void linear_pipeline_broadcast(int arr[], int n, int myid, int procs);
+void binomial_pipeline_broadcast(int arr[], int n, int myid, int procs);
 //void    Print_times(double[], int);
 
 int main(int argc, char **argv)
@@ -78,13 +81,20 @@ int main(int argc, char **argv)
     
     //MPI_Bcast(arr, n, MPI_INT, 0, MPI_COMM_WORLD);
     //ring(arr, n, myid,procs);
-    binomial_tree(arr,n,myid,procs);  
+    //binomial_tree(arr,n,myid,procs);  
     //binary_tree(arr,n,myid,procs);
+    //linear_pipeline_broadcast(arr,n,myid,procs);
+    binomial_pipeline_broadcast(arr,n,myid,procs);
+   
+
+
+    
     
     MPI_Barrier(MPI_COMM_WORLD);
     t2_b = MPI_Wtime();
-    //printArray(arr,n);
-   //printf("\n");
+    printf("Sono il rank %d: ",myid);
+    printArray(arr,n);
+    printf("\n");
     if (myid == 0)
     {
       bcast_time[iter] = ((t2_b - t1_b) * 1000);
@@ -249,18 +259,29 @@ void binomial_tree(int arr[], int n, int myid, int procs)
     
       for(int i=(int)log2(procs)-1;i>=0;i--)
       {
+        //printf("%d\n",log2(procs) == (int)log2(procs));
+        //printf("%d\n",(int)pow(2,(int)log2(procs)));
         if(myid == 0)
           {
             send=(int)pow(2,i)+myid;
             //printf("Sono il rank 0 che invia a %d\n",send);
             MPI_Send(arr, n, MPI_INT,send, 0, MPI_COMM_WORLD);
+            if(!(log2(procs) == (int)log2(procs)) && i==(int)log2(procs)-1)
+              {
+                int initial= (int)pow(2,(int)log2(procs));
+                
+                  //printf("Sono il rank last %d che invia a %d\n",myid, initial);
+                  MPI_Send(arr, n, MPI_INT,initial, 0, MPI_COMM_WORLD);
+               
+              }
           
           }
           else
           {
-            //printf("Sono il rank %d che riceve da %d\n",myid,recv);
+            
             if(done == -1)
             {
+              //printf("Sono il rank %d che riceve da %d\n",myid,recv);
               done=1;
               MPI_Recv(arr, n, MPI_INT, recv , 0, MPI_COMM_WORLD, &status);
               //printArray(arr,n);
@@ -270,10 +291,162 @@ void binomial_tree(int arr[], int n, int myid, int procs)
             if(myid % (int)pow(2,i+1)== 0)
             {
               send=(int)pow(2,i)+myid;
-              //printf("Sono il rank %d che invia a %d\n",myid,recv);
-              if(myid != procs-1)
-              MPI_Send(arr, n, MPI_INT, send, 0, MPI_COMM_WORLD);
+              
+              if(myid != procs-1 && send < procs)
+              {
+                //printf("Sono il rank %d che invia a %d\n",myid,send);
+                MPI_Send(arr, n, MPI_INT, send, 0, MPI_COMM_WORLD);
+              }
+             
             }
+            /*
+            else if(myid == (int)pow(2,(int)log2(procs)))
+            {
+              if(!(log2(procs) == (int)log2(procs)))
+              {
+                int initial= (int)pow(2,(int)log2(procs));
+                while(initial < procs)
+                {
+                  printf("Sono il rank last %d che invia a %d\n",myid, initial);
+                  MPI_Send(arr, n, MPI_INT,initial, 0, MPI_COMM_WORLD);
+                  initial++;
+                }
+              }
+            }*/
+          }
+      }
+}
+
+void linear_pipeline_broadcast(int arr[], int n, int myid, int procs)
+{
+    int logbase=(int)log2(n);
+     MPI_Status status;
+    if(myid == 0)
+    {
+      //printf("Array master:\n");
+      //printArray(arr,n);
+      //printf("\n");
+      //printf("%d\n",(int)log2(n));
+      //printf("%d\n",*(arr+1));
+      for(int i=0;i<n;i=i+logbase)
+      {
+        MPI_Send(arr+i, logbase, MPI_INT, myid+1, 0, MPI_COMM_WORLD);
+      }
+      
+    }
+     
+    else if(myid == procs-1)
+    {
+      for(int i=0;i<n;i=i+logbase)
+      {
+        MPI_Recv(arr+i, logbase, MPI_INT, myid-1, 0, MPI_COMM_WORLD, &status);
+      }
+    }
+      
+    else
+    {
+      for(int i=0;i<n;i=i+logbase)
+      {
+        MPI_Recv(arr+i, logbase, MPI_INT, myid-1, 0, MPI_COMM_WORLD, &status);
+        MPI_Send(arr+i, logbase, MPI_INT, myid+1, 0, MPI_COMM_WORLD);
+      }
+      //printf("Array ricevuto rank %d:\n",myid);
+      //printArray(arr,n);
+      //printf("\n");
+    }
+}
+
+void binomial_pipeline_broadcast(int arr[], int n, int myid, int procs)
+{
+ int recv=-1;
+  int done=-1;
+  int send=-1;
+   int logbase=(int)log2(n);
+  MPI_Status status;
+  for(int i=(int)log2(procs);i>=0;i--)
+      {
+        if(myid != 0)
+        {
+          if(myid % (int)pow(2,i)== 0)
+          {
+            if(recv == -1)
+            {
+              recv=myid-pow(2,i);
+              //printf("Sono il rank %d e ricevo da %d\n",myid,recv);
+            }
+              
+          }
+        }
+      }
+    
+      for(int i=(int)log2(procs)-1;i>=0;i--)
+      {
+        //printf("%d\n",log2(procs) == (int)log2(procs));
+        //printf("%d\n",(int)pow(2,(int)log2(procs)));
+        if(myid == 0)
+          {
+            send=(int)pow(2,i)+myid;
+            //printf("Sono il rank 0 che invia a %d\n",send);
+            for(int i=0;i<n;i=i+logbase)
+            { 
+              MPI_Send(arr+i, logbase, MPI_INT,send, 0, MPI_COMM_WORLD);
+            }
+            if(!(log2(procs) == (int)log2(procs)) && i==(int)log2(procs)-1)
+              {
+                int initial= (int)pow(2,(int)log2(procs));
+                
+                  //printf("Sono il rank last %d che invia a %d\n",myid, initial);
+                  for(int i=0;i<n;i=i+logbase)
+                  { 
+                    MPI_Send(arr+i, logbase, MPI_INT,initial, 0, MPI_COMM_WORLD);
+                  }
+               
+              }
+          
+          }
+          else
+          {
+            
+            if(done == -1)
+            {
+              //printf("Sono il rank %d che riceve da %d\n",myid,recv);
+              done=1;
+              for(int i=0;i<n;i=i+logbase)
+                { 
+                  MPI_Recv(arr+i, logbase, MPI_INT, recv , 0, MPI_COMM_WORLD, &status);
+                }
+              //printArray(arr,n);
+              //printf("\n");
+            }
+            
+            if(myid % (int)pow(2,i+1)== 0)
+            {
+              send=(int)pow(2,i)+myid;
+              
+              if(myid != procs-1  && send < procs)
+              {
+                //printf("Sono il rank %d che invia a %d\n",myid,send);
+                for(int i=0;i<n;i=i+logbase)
+                { 
+                  MPI_Send(arr+i, logbase, MPI_INT, send, 0, MPI_COMM_WORLD);
+                }
+              }
+             
+            }
+            /*
+            else if(myid == (int)pow(2,(int)log2(procs)))
+            {
+              if(!(log2(procs) == (int)log2(procs)))
+              {
+                int initial= (int)pow(2,(int)log2(procs));
+                while(initial < procs)
+                {
+                  printf("Sono il rank last %d che invia a %d\n",myid, initial);
+                  MPI_Send(arr, n, MPI_INT,initial, 0, MPI_COMM_WORLD);
+                  initial++;
+                }
+              }
+            }*/
           }
       }
 }
