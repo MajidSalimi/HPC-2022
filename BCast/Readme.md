@@ -5,7 +5,7 @@ mpicc Bcast.c -lm -o Bcast.out
 ```
 And now we can execute **Bcast.out**:
 ```
-mpirun -np X --mca btl_vader_single_copy_mechanism none --allow-run-as-root Bcast.out *size_of_data* *max_iter* *sleep_time*
+mpirun -np X --allow-run-as-root Bcast.out *size_of_data* *max_iter* *sleep_time*
 ```
 Where:
   - **size_of_data**: Size of the data to broadcast, the data will be in powers of 2.
