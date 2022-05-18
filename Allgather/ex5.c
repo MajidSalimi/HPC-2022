@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 {
 
     int numtasks, rank, dest, tag, n, source, rc, count, iterations, siz;
-    long n_bytes, sleep_time;
+    long sleep_time;
     int pow_2;
 
     int *array;
@@ -31,8 +31,7 @@ int main(int argc, char *argv[])
     iterations = atoi(argv[2]); // Number of iterations to repeat the procedure
     sleep_time = atoi(argv[3]); // Wait time between iterations (microseconds)
 
-    n_bytes = pow(2, siz);
-    n = n_bytes / sizeof(int);
+    n = pow(2, siz);
 
     int msg[n];
 
@@ -73,16 +72,17 @@ int main(int argc, char *argv[])
             rc = MPI_Send(array, tmp, MPI_INT, j, 10, MPI_COMM_WORLD);
             rc = MPI_Recv(&array[tmp], tmp, MPI_INT, j, 10, MPI_COMM_WORLD, &Stat);
         }
-        /*
+    
         printf("Task %d received: [ ", rank);
         for (int i = 0; i < numtasks * n; i++)
         {
             printf("%d ", array[i]);
         }
         printf("]\n");
-        */
+        
         usleep(sleep_time);
     }
+    free(array);
 
     MPI_Barrier(MPI_COMM_WORLD);
     double end = MPI_Wtime();
@@ -94,5 +94,4 @@ int main(int argc, char *argv[])
 
     MPI_Finalize();
 
-    free(array);
 }
