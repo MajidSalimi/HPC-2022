@@ -11,8 +11,12 @@ There are 5 different algorithms of ALL_Garher:
  
  -5  is an allgather implementation by recursive doubling
 
+### Compile:
+```
+mpicc <ex*.c> -lm -o <ex*>
+```
 
-#### To run: 
+### To run: 
 ```
 mpirun -n nprocs --allow-run-as-root --oversubscribe a.out <data_size> <num_iterations> <delay_between_iterations>
 ```
