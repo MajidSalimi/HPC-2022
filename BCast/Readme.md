@@ -5,7 +5,7 @@ In this project it's show alternative implementations of MPI_BCAST method. In pa
 In a ring-based broadcast algorithm, processes form a logical ring structure. Beginning with the root process, each process sends data to its logical neighbor. Overall, this takes n−1 steps.
 The runtime is: 
 
-T(Bcast Ring) = (n − 1) × (m*Tbyte+ Tstart). 
+**T(Bcast Ring) = (n − 1) × (m*Tbyte+ Tstart).** 
 
 ## Binary tree
 Binary tree is a tree data structure in which each node has at most two children. Each node send the message to its two children.
