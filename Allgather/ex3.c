@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
 
     int numtasks, rank, dest, tag, n, source, rc, count, iterations, siz, value;
-    long n_bytes, sleep_time;
+    long sleep_time;
     int pow_2;
 
     int *array;
@@ -25,8 +25,7 @@ int main(int argc, char *argv[])
     iterations = atoi(argv[2]); // Number of iterations to repeat the procedure
     sleep_time = atoi(argv[3]); // Wait time between iterations (microseconds)
 
-    n_bytes = pow(2, siz);
-    n = n_bytes / sizeof(int);
+    n = pow(2, siz);
 
     int msg[n];
 
