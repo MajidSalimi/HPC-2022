@@ -1,15 +1,16 @@
 /*
-Recursive Doubling
+Recursive Halving
 
 This algorithm is an implementation of Allgather.
-With 8 Processes, In the first step, processes that are a distance 1 apart 
+With 8 Processes, in the first step, processes that are a distance 4 apart 
 exchange their data. In the second step, processes that are a distance 2 apart 
 exchange their own data as well as the data they received in the previous step. 
-In the third step, processes that are a distance 4 apart exchange their own data
+In the third step, processes that are a distance 4 apart exchange their own data 
 as well the data they received in the previous two steps. In this way, for a 
 power-of-two number of processes, all processes get all the data in lg p steps.
-For long messages (> 512 KB), the recursive doubling runs much slower than ring.
-*/
+recursive-halving algorithm is analogous to the recursive-doubling algorithm used 
+for allgather implementation.
+ */
 
 #include "mpi.h"
 #include <stdio.h>
@@ -60,12 +61,12 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < nstep; i++)
         {
-            int p = pow(2, i);
-            int a = numtasks / pow(2, i + 1); // Number of subtrees
-            int k = numtasks / a;             // Number of items in the subtree
-            int st = (rank / k) + 1;          // Subtree considered
-            int j = rank + p;                 // Leap forward
-            int tmp = n * p;
+            int p = pow(2, nstep - (i + 1));
+            int a = numtasks / pow(2, nstep - i); // Number of subtrees
+            int k = numtasks / a;                 // Number of items in the subtree
+            int st = (rank / k) + 1;              // Subtree considered
+            int j = rank + p;                     // Leap forward
+            int tmp = n * pow(2, i);
 
             if (j >= st * k)
             {
@@ -95,5 +96,4 @@ int main(int argc, char *argv[])
     }
 
     MPI_Finalize();
-
 }

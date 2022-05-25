@@ -1,4 +1,6 @@
 /*
+Ring
+
 This algorithm is an implementation of Allgather.
 A loop method is used in which the data of each process is sent around a virtual ring of processes.
 In the first step, each process i sends its contribution to process i + 1 and receives
@@ -103,14 +105,14 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        
+        /*        
         printf("Task %d received: [ ", rank);
         for (int i = 0; i < numtasks * n; i++)
         {
             printf("%d ", array[i]);
         }
         printf("]\n");
-        
+        */
         usleep(sleep_time);
     }
     MPI_Barrier(MPI_COMM_WORLD);
