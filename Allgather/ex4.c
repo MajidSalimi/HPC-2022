@@ -48,64 +48,75 @@ int main(int argc, char *argv[])
 
     for (int iteration = 0; iteration < iterations; iteration++)
     {
-        for (int ring = 0; ring < numtasks; ring++)
+        if (numtasks < 2)
         {
-            if (rank == 0)
+            for (size_t i = 0; i < n; i++)
             {
-                if (ring == 0)
-                {
-                    for (size_t i = 0; i < n; i++)
-                    {
-                        msg[i] = rand() % 1000;
-                        array[i] = msg[i];
-                    }
-                    rc = MPI_Send(&msg, n, MPI_INT, rank + 1, 10, MPI_COMM_WORLD);
-                }
-                else
-                {
-                    int tmp = ring * n;
-                    rc = MPI_Recv(&array[tmp], n, MPI_INT, numtasks - 1, 10, MPI_COMM_WORLD, &Stat);
-                    rc = MPI_Send(&array[tmp], n, MPI_INT, rank + 1, 10, MPI_COMM_WORLD);
-                }
+                msg[i] = rand() % 1000;
+                array[i] = msg[i];
             }
-            else
+        }
+        else
+        {
+            for (int ring = 0; ring < numtasks; ring++)
             {
-                int tmp_recv = (ring + 1) * n;
-                int tmp_send = (ring)*n;
-
-                if (ring == 0)
+                if (rank == 0)
                 {
-                    for (size_t i = 0; i < n; i++)
+                    if (ring == 0)
                     {
-                        msg[i] = rand() % 1000;
-                        array[i] = msg[i];
-                    }
-                    if (rank == numtasks - 1)
-                    {
-                        rc = MPI_Send(&msg, n, MPI_INT, 0, 10, MPI_COMM_WORLD);
-                    }
-                    else
-                    {
+                        for (size_t i = 0; i < n; i++)
+                        {
+                            msg[i] = rand() % 1000;
+                            array[i] = msg[i];
+                        }
                         rc = MPI_Send(&msg, n, MPI_INT, rank + 1, 10, MPI_COMM_WORLD);
                     }
-
-                    rc = MPI_Recv(&array[tmp_recv], n, MPI_INT, rank - 1, 10, MPI_COMM_WORLD, &Stat);
+                    else
+                    {
+                        int tmp = ring * n;
+                        rc = MPI_Recv(&array[tmp], n, MPI_INT, numtasks - 1, 10, MPI_COMM_WORLD, &Stat);
+                        rc = MPI_Send(&array[tmp], n, MPI_INT, rank + 1, 10, MPI_COMM_WORLD);
+                    }
                 }
                 else
                 {
-                    rc = MPI_Recv(&array[tmp_recv], n, MPI_INT, rank - 1, 10, MPI_COMM_WORLD, &Stat);
-                    if (rank == numtasks - 1)
+                    int tmp_recv = (ring + 1) * n;
+                    int tmp_send = (ring)*n;
+
+                    if (ring == 0)
                     {
-                        rc = MPI_Send(&array[tmp_send], n, MPI_INT, 0, 10, MPI_COMM_WORLD);
+                        for (size_t i = 0; i < n; i++)
+                        {
+                            msg[i] = rand() % 1000;
+                            array[i] = msg[i];
+                        }
+                        if (rank == numtasks - 1)
+                        {
+                            rc = MPI_Send(&msg, n, MPI_INT, 0, 10, MPI_COMM_WORLD);
+                        }
+                        else
+                        {
+                            rc = MPI_Send(&msg, n, MPI_INT, rank + 1, 10, MPI_COMM_WORLD);
+                        }
+
+                        rc = MPI_Recv(&array[tmp_recv], n, MPI_INT, rank - 1, 10, MPI_COMM_WORLD, &Stat);
                     }
                     else
                     {
-                        rc = MPI_Send(&array[tmp_send], n, MPI_INT, rank + 1, 10, MPI_COMM_WORLD);
+                        rc = MPI_Recv(&array[tmp_recv], n, MPI_INT, rank - 1, 10, MPI_COMM_WORLD, &Stat);
+                        if (rank == numtasks - 1)
+                        {
+                            rc = MPI_Send(&array[tmp_send], n, MPI_INT, 0, 10, MPI_COMM_WORLD);
+                        }
+                        else
+                        {
+                            rc = MPI_Send(&array[tmp_send], n, MPI_INT, rank + 1, 10, MPI_COMM_WORLD);
+                        }
                     }
                 }
             }
         }
-        /*        
+        /*
         printf("Task %d received: [ ", rank);
         for (int i = 0; i < numtasks * n; i++)
         {
