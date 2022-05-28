@@ -1,0 +1,315 @@
+>> io.h - read_hdf5 takes 0.010490 seconds | start: 0.000000 end: 0.010490
+Computing cell space...
+>> spatial_index.h (#pragma omp parallel for) - compute_initial_order takes 0.000341 seconds | start: 0.024973 end: 0.025315
+>> spatial_index.h (#pragma omp parallel for reduction(vector_min: minimums) reduction(vector_max: maximums)) - compute_space_dimensions takes 0.003614 seconds | start: 0.025351 end: 0.028965
+>> hpdbscan.h (compute_space_dimensions) - 1° MPI_Allreduce takes 0.001757 seconds | start: 0.029023 end: 0.030780
+>> hpdbscan.h (compute_space_dimensions) - 2° MPI_Allreduce takes 0.010468 seconds | start: 0.031493 end: 0.041961
+>> spatial_index.h - compute_space_dimensions takes 0.016689 seconds | start: 0.025351 end: 0.042040
+>> spatial_index.h - compute_cell_dimensions takes 0.000000 seconds | start: 0.042053 end: 0.042053
+>> spatial_index.h - swap_dimensions takes 0.000001 seconds | start: 0.042064 end: 0.042065
+	Computing dimensions... [OK] in 0.017497
+>> spatial_index.h - compute_cells takes 0.660903 seconds | start: 0.042433 end: 0.703336
+>> spatial_index.h - compute_cell_index takes 0.089637 seconds | start: 0.734521 end: 0.824157
+	Computing cells... [OK] in 0.781797
+>> spatial_index.h - sort_by_cell takes 0.438280 seconds | start: 0.824265 end: 1.262545
+	Sorting points... [OK] in 0.471988
+>> spatial_index (compute_global_histogram) - MPI_Alltoall takes 0.201278 seconds | start: 1.333307 end: 1.534585
+>> spatial_index (compute_global_histogram) - MPI_Alltoallv takes 0.192326 seconds | start: 1.571163 end: 1.763489
+>> spatial_index.h - compute_global_histogram takes 1.324821 seconds | start: 1.333306 end: 2.658127
+>> spatial_index.h - compute_bounds takes 10.388100 seconds | start: 2.660987 end: 13.049087
+>> spatial_index (redistribute_dataset) - 1° MPI_Alltoall takes 0.000110 seconds | start: 13.138161 end: 13.138270
+>> spatial_index (redistribute_dataset) - 2° MPI_Alltoall takes 0.014814 seconds | start: 13.168675 end: 13.183489
+>> spatial_index (redistribute_dataset) - 3° MPI_Alltoall takes 0.010921 seconds | start: 13.183634 end: 13.194555
+>> spatial_index.h - redistribute_dataset takes 0.081401 seconds | start: 13.138125 end: 13.219526
+>> spatial_index.h - compute_cells takes 0.249476 seconds | start: 13.219798 end: 13.469274
+>> spatial_index.h - compute_cell_index takes 0.080077 seconds | start: 13.495228 end: 13.575305
+>> spatial_index (compute_global_point_offset) - MPI_Exscan takes 0.000011 seconds | start: 13.575379 end: 13.575390
+>> spatial_index.h - compute_global_point_offset takes 0.000024 seconds | start: 13.575376 end: 13.575400
+>> spatial_index.h - sort_by_cell takes 0.344273 seconds | start: 13.575408 end: 13.919680
+	Distributing points... [OK] in 12.681565
+>> spatial_index.h - SpatialIndex takes 13.990446 seconds | start: 0.024578 end: 14.015024
+Clustering...
+>> hpdbscan.h - local_dbscan takes 1.226085 seconds | start: 14.015522 end: 15.241607
+	DBSCAN.. [OK] in 1.226180
+>> hpdbscan.h (merge_halos) - MPI_Alltoall takes 0.000088 seconds | start: 15.241986 end: 15.242075
+>> hpdbscan.h (merge_halos) - MPI_Alltoallv takes 0.000415 seconds | start: 15.242097 end: 15.242512
+>> hpdbscan.h - merge_halos takes 0.000553 seconds | start: 15.241977 end: 15.242530
+>> hpdbscan.h (distribute_rules) - MPI_Alltoall takes 0.000236 seconds | start: 15.242541 end: 15.242777
+>> hpdbscan.h (distribute_rules) - MPI_Alltoallv takes 0.000166 seconds | start: 15.242792 end: 15.242957
+>> hpdbscan.h - distribute_rules takes 0.000435 seconds | start: 15.242541 end: 15.242976
+	Merging halos... [OK] in 0.001033
+>> hpdbscan.h (#pragma omp parallel for) - apply_rules takes 0.004152 seconds | start: 15.243117 end: 15.247269
+	Appyling rules... [OK] in 0.004216
+>> spatial_index (recover_initial_order) - 1° MPI_Alltoall takes 0.068981 seconds | start: 15.306352 end: 15.375333
+>> spatial_index (recover_initial_order) - 2° MPI_Alltoallv takes 0.015904 seconds | start: 15.376265 end: 15.392169
+>> spatial_index (recover_initial_order) - 3° MPI_Alltoallv takes 0.010447 seconds | start: 15.392237 end: 15.402684
+>> spatial_index (recover_initial_order) - 4° MPI_Alltoallv takes 0.010164 seconds | start: 15.402767 end: 15.412931
+>> spatial_index.h (#pragma omp parallel for) - recover_initial_order takes 0.005110 seconds | start: 15.413967 end: 15.419077
+>> spatial_index.h - recover_initial_order takes 0.016390 seconds | start: 15.402767 end: 15.419158
+	Recovering order... [OK] in 0.171634
+Summary...
+>> hpdbscan.h (summarize) - MPI_Gather takes 0.002416 seconds | start: 15.424031 end: 15.426447
+>> hpdbscan.h (summarize) - MPI_Gatherv takes 0.000007 seconds | start: 15.426482 end: 15.426489
+>> hpdbscan.h (summarize) - MPI_Reduce takes 0.000014 seconds | start: 15.426498 end: 15.426512
+	Clusters:       187
+	Cluster points: 374
+	Noise points:   2999626
+	Core points:    374
+>> hpdbscan.h - summarize takes 0.007405 seconds | start: 15.419208 end: 15.426612
+Total time: 15.415970
+>> write_hdf5 - MPI_Allreduce takes 0.000058 seconds | start: 15.471828 end: 15.471886
+
+============== EXECUTION TERMINATED ==============
+
+>> io.h - read_hdf5 takes 0.006359 seconds | start: 0.000000 end: 0.006359
+Computing cell space...
+>> spatial_index.h (#pragma omp parallel for) - compute_initial_order takes 0.002255 seconds | start: 0.015017 end: 0.017272
+>> spatial_index.h (#pragma omp parallel for reduction(vector_min: minimums) reduction(vector_max: maximums)) - compute_space_dimensions takes 0.006145 seconds | start: 0.017333 end: 0.023479
+>> hpdbscan.h (compute_space_dimensions) - 1° MPI_Allreduce takes 0.002708 seconds | start: 0.023545 end: 0.026253
+>> hpdbscan.h (compute_space_dimensions) - 2° MPI_Allreduce takes 0.020800 seconds | start: 0.026313 end: 0.047113
+>> spatial_index.h - compute_space_dimensions takes 0.029930 seconds | start: 0.017333 end: 0.047263
+>> spatial_index.h - compute_cell_dimensions takes 0.000000 seconds | start: 0.047284 end: 0.047284
+>> spatial_index.h - swap_dimensions takes 0.000001 seconds | start: 0.047295 end: 0.047296
+	Computing dimensions... [OK] in 0.033062
+>> spatial_index.h - compute_cells takes 0.542826 seconds | start: 0.047365 end: 0.590191
+>> spatial_index.h - compute_cell_index takes 0.129265 seconds | start: 0.631125 end: 0.760391
+	Computing cells... [OK] in 0.713106
+>> spatial_index.h - sort_by_cell takes 0.479603 seconds | start: 0.760561 end: 1.240164
+	Sorting points... [OK] in 0.524223
+>> spatial_index (compute_global_histogram) - MPI_Alltoall takes 0.106526 seconds | start: 1.335622 end: 1.442147
+>> spatial_index (compute_global_histogram) - MPI_Alltoallv takes 0.172730 seconds | start: 1.483142 end: 1.655872
+>> spatial_index.h - compute_global_histogram takes 1.115943 seconds | start: 1.335621 end: 2.451564
+>> spatial_index.h - compute_bounds takes 10.008885 seconds | start: 2.453840 end: 12.462725
+>> spatial_index (redistribute_dataset) - 1° MPI_Alltoall takes 0.413331 seconds | start: 12.541262 end: 12.954592
+>> spatial_index (redistribute_dataset) - 2° MPI_Alltoall takes 0.029410 seconds | start: 12.982021 end: 13.011431
+>> spatial_index (redistribute_dataset) - 3° MPI_Alltoall takes 0.014699 seconds | start: 13.011528 end: 13.026227
+>> spatial_index.h - redistribute_dataset takes 0.509609 seconds | start: 12.541228 end: 13.050837
+>> spatial_index.h - compute_cells takes 0.273049 seconds | start: 13.051075 end: 13.324124
+>> spatial_index.h - compute_cell_index takes 0.104099 seconds | start: 13.355130 end: 13.459229
+>> spatial_index (compute_global_point_offset) - MPI_Exscan takes 0.000012 seconds | start: 13.459306 end: 13.459318
+>> spatial_index.h - compute_global_point_offset takes 0.000027 seconds | start: 13.459302 end: 13.459329
+>> spatial_index.h - sort_by_cell takes 0.332709 seconds | start: 13.459337 end: 13.792046
+	Distributing points... [OK] in 12.539223
+>> spatial_index.h - SpatialIndex takes 13.860710 seconds | start: 0.014245 end: 13.874954
+Clustering...
+>> hpdbscan.h - local_dbscan takes 1.078859 seconds | start: 13.875438 end: 14.954297
+	DBSCAN.. [OK] in 1.078959
+>> hpdbscan.h (merge_halos) - MPI_Alltoall takes 0.000134 seconds | start: 14.954463 end: 14.954597
+>> hpdbscan.h (merge_halos) - MPI_Alltoallv takes 0.000310 seconds | start: 14.954622 end: 14.954932
+>> hpdbscan.h - merge_halos takes 0.000535 seconds | start: 14.954455 end: 14.954990
+>> hpdbscan.h (distribute_rules) - MPI_Alltoall takes 0.000085 seconds | start: 14.955007 end: 14.955091
+>> hpdbscan.h (distribute_rules) - MPI_Alltoallv takes 0.000202 seconds | start: 14.955129 end: 14.955331
+>> hpdbscan.h - distribute_rules takes 0.000345 seconds | start: 14.955006 end: 14.955351
+	Merging halos... [OK] in 0.000920
+>> hpdbscan.h (#pragma omp parallel for) - apply_rules takes 0.004314 seconds | start: 14.955387 end: 14.959702
+	Appyling rules... [OK] in 0.004369
+>> spatial_index (recover_initial_order) - 1° MPI_Alltoall takes 0.000139 seconds | start: 15.116873 end: 15.117012
+>> spatial_index (recover_initial_order) - 2° MPI_Alltoallv takes 0.015012 seconds | start: 15.117908 end: 15.132920
+>> spatial_index (recover_initial_order) - 3° MPI_Alltoallv takes 0.012120 seconds | start: 15.133014 end: 15.145133
+>> spatial_index (recover_initial_order) - 4° MPI_Alltoallv takes 0.009645 seconds | start: 15.145214 end: 15.154859
+>> spatial_index.h (#pragma omp parallel for) - recover_initial_order takes 0.007897 seconds | start: 15.156594 end: 15.164490
+>> spatial_index.h - recover_initial_order takes 0.019368 seconds | start: 15.145214 end: 15.164583
+	Recovering order... [OK] in 0.204662
+Summary...
+>> hpdbscan.h (summarize) - MPI_Gather takes 0.000140 seconds | start: 15.170630 end: 15.170770
+>> hpdbscan.h (summarize) - MPI_Gatherv takes 0.000006 seconds | start: 15.170798 end: 15.170804
+>> hpdbscan.h (summarize) - MPI_Reduce takes 0.000011 seconds | start: 15.170815 end: 15.170827
+	Clusters:       187
+	Cluster points: 374
+	Noise points:   2999626
+	Core points:    374
+>> hpdbscan.h - summarize takes 0.006294 seconds | start: 15.164631 end: 15.170924
+Total time: 15.164461
+>> write_hdf5 - MPI_Allreduce takes 0.000058 seconds | start: 15.214897 end: 15.214955
+
+============== EXECUTION TERMINATED ==============
+
+>> io.h - read_hdf5 takes 0.006835 seconds | start: 0.000000 end: 0.006835
+Computing cell space...
+>> spatial_index.h (#pragma omp parallel for) - compute_initial_order takes 0.000318 seconds | start: 0.011871 end: 0.012188
+>> spatial_index.h (#pragma omp parallel for reduction(vector_min: minimums) reduction(vector_max: maximums)) - compute_space_dimensions takes 0.002010 seconds | start: 0.012228 end: 0.014238
+>> hpdbscan.h (compute_space_dimensions) - 1° MPI_Allreduce takes 0.000837 seconds | start: 0.014281 end: 0.015117
+>> hpdbscan.h (compute_space_dimensions) - 2° MPI_Allreduce takes 0.009309 seconds | start: 0.015153 end: 0.024462
+>> spatial_index.h - compute_space_dimensions takes 0.012325 seconds | start: 0.012228 end: 0.024552
+>> spatial_index.h - compute_cell_dimensions takes 0.000000 seconds | start: 0.024567 end: 0.024567
+>> spatial_index.h - swap_dimensions takes 0.000001 seconds | start: 0.024578 end: 0.024579
+	Computing dimensions... [OK] in 0.012934
+>> spatial_index.h - compute_cells takes 0.519559 seconds | start: 0.024768 end: 0.544327
+>> spatial_index.h - compute_cell_index takes 0.120319 seconds | start: 0.590687 end: 0.711006
+	Computing cells... [OK] in 0.686317
+>> spatial_index.h - sort_by_cell takes 0.615823 seconds | start: 0.711126 end: 1.326949
+	Sorting points... [OK] in 0.652467
+>> spatial_index (compute_global_histogram) - MPI_Alltoall takes 0.151360 seconds | start: 1.408026 end: 1.559386
+>> spatial_index (compute_global_histogram) - MPI_Alltoallv takes 0.166235 seconds | start: 1.605504 end: 1.771739
+>> spatial_index.h - compute_global_histogram takes 1.263434 seconds | start: 1.408025 end: 2.671459
+>> spatial_index.h - compute_bounds takes 9.816232 seconds | start: 2.674182 end: 12.490414
+>> spatial_index (redistribute_dataset) - 1° MPI_Alltoall takes 0.815752 seconds | start: 12.576888 end: 13.392640
+>> spatial_index (redistribute_dataset) - 2° MPI_Alltoall takes 0.013935 seconds | start: 13.420579 end: 13.434514
+>> spatial_index (redistribute_dataset) - 3° MPI_Alltoall takes 0.011572 seconds | start: 13.434582 end: 13.446154
+>> spatial_index.h - redistribute_dataset takes 0.893932 seconds | start: 12.576857 end: 13.470789
+>> spatial_index.h - compute_cells takes 0.211175 seconds | start: 13.471027 end: 13.682202
+>> spatial_index.h - compute_cell_index takes 0.082016 seconds | start: 13.711599 end: 13.793615
+>> spatial_index (compute_global_point_offset) - MPI_Exscan takes 0.000013 seconds | start: 13.793696 end: 13.793709
+>> spatial_index.h - compute_global_point_offset takes 0.000027 seconds | start: 13.793692 end: 13.793719
+>> spatial_index.h - sort_by_cell takes 0.282912 seconds | start: 13.793728 end: 14.076639
+	Distributing points... [OK] in 12.730277
+>> spatial_index.h - SpatialIndex takes 14.126755 seconds | start: 0.011655 end: 14.138410
+Clustering...
+>> hpdbscan.h - local_dbscan takes 1.086010 seconds | start: 14.138810 end: 15.224820
+	DBSCAN.. [OK] in 1.086090
+>> hpdbscan.h (merge_halos) - MPI_Alltoall takes 0.000103 seconds | start: 15.224953 end: 15.225057
+>> hpdbscan.h (merge_halos) - MPI_Alltoallv takes 0.000421 seconds | start: 15.225075 end: 15.225496
+>> hpdbscan.h - merge_halos takes 0.000572 seconds | start: 15.224947 end: 15.225519
+>> hpdbscan.h (distribute_rules) - MPI_Alltoall takes 0.000140 seconds | start: 15.225531 end: 15.225671
+>> hpdbscan.h (distribute_rules) - MPI_Alltoallv takes 0.000222 seconds | start: 15.225685 end: 15.225907
+>> hpdbscan.h - distribute_rules takes 0.000392 seconds | start: 15.225531 end: 15.225923
+	Merging halos... [OK] in 0.000998
+>> hpdbscan.h (#pragma omp parallel for) - apply_rules takes 0.004139 seconds | start: 15.225957 end: 15.230096
+	Appyling rules... [OK] in 0.004195
+>> spatial_index (recover_initial_order) - 1° MPI_Alltoall takes 0.078937 seconds | start: 15.288376 end: 15.367313
+>> spatial_index (recover_initial_order) - 2° MPI_Alltoallv takes 0.014202 seconds | start: 15.368246 end: 15.382449
+>> spatial_index (recover_initial_order) - 3° MPI_Alltoallv takes 0.010018 seconds | start: 15.382512 end: 15.392530
+>> spatial_index (recover_initial_order) - 4° MPI_Alltoallv takes 0.009902 seconds | start: 15.392596 end: 15.402498
+>> spatial_index.h (#pragma omp parallel for) - recover_initial_order takes 0.004373 seconds | start: 15.403408 end: 15.407781
+>> spatial_index.h - recover_initial_order takes 0.015267 seconds | start: 15.392596 end: 15.407863
+	Recovering order... [OK] in 0.177697
+Summary...
+>> hpdbscan.h (summarize) - MPI_Gather takes 0.003937 seconds | start: 15.412613 end: 15.416551
+>> hpdbscan.h (summarize) - MPI_Gatherv takes 0.000008 seconds | start: 15.416582 end: 15.416590
+>> hpdbscan.h (summarize) - MPI_Reduce takes 0.000017 seconds | start: 15.416599 end: 15.416616
+	Clusters:       187
+	Cluster points: 374
+	Noise points:   2999626
+	Core points:    374
+>> hpdbscan.h - summarize takes 0.008791 seconds | start: 15.407910 end: 15.416701
+Total time: 15.409771
+>> write_hdf5 - MPI_Allreduce takes 0.000062 seconds | start: 15.460037 end: 15.460099
+
+============== EXECUTION TERMINATED ==============
+
+>> io.h - read_hdf5 takes 0.014025 seconds | start: 0.000000 end: 0.014025
+Computing cell space...
+>> spatial_index.h (#pragma omp parallel for) - compute_initial_order takes 0.000471 seconds | start: 0.028500 end: 0.028971
+>> spatial_index.h (#pragma omp parallel for reduction(vector_min: minimums) reduction(vector_max: maximums)) - compute_space_dimensions takes 0.002270 seconds | start: 0.029018 end: 0.031288
+>> hpdbscan.h (compute_space_dimensions) - 1° MPI_Allreduce takes 0.005481 seconds | start: 0.031334 end: 0.036815
+>> hpdbscan.h (compute_space_dimensions) - 2° MPI_Allreduce takes 0.026588 seconds | start: 0.036870 end: 0.063457
+>> spatial_index.h - compute_space_dimensions takes 0.034505 seconds | start: 0.029017 end: 0.063523
+>> spatial_index.h - compute_cell_dimensions takes 0.000000 seconds | start: 0.063531 end: 0.063531
+>> spatial_index.h - swap_dimensions takes 0.000008 seconds | start: 0.063539 end: 0.063546
+	Computing dimensions... [OK] in 0.035538
+>> spatial_index.h - compute_cells takes 0.548189 seconds | start: 0.065204 end: 0.613392
+>> spatial_index.h - compute_cell_index takes 0.118008 seconds | start: 0.641865 end: 0.759873
+	Computing cells... [OK] in 0.694905
+>> spatial_index.h - sort_by_cell takes 0.610734 seconds | start: 0.760313 end: 1.371047
+	Sorting points... [OK] in 0.642059
+>> spatial_index (compute_global_histogram) - MPI_Alltoall takes 0.073168 seconds | start: 1.438207 end: 1.511375
+>> spatial_index (compute_global_histogram) - MPI_Alltoallv takes 0.164617 seconds | start: 1.557969 end: 1.722586
+>> spatial_index.h - compute_global_histogram takes 1.077585 seconds | start: 1.438207 end: 2.515792
+>> spatial_index.h - compute_bounds takes 10.037119 seconds | start: 2.518213 end: 12.555332
+>> spatial_index (redistribute_dataset) - 1° MPI_Alltoall takes 0.000179 seconds | start: 12.634828 end: 12.635007
+>> spatial_index (redistribute_dataset) - 2° MPI_Alltoall takes 0.016413 seconds | start: 12.663611 end: 12.680024
+>> spatial_index (redistribute_dataset) - 3° MPI_Alltoall takes 0.011973 seconds | start: 12.680148 end: 12.692121
+>> spatial_index.h - redistribute_dataset takes 0.082754 seconds | start: 12.634792 end: 12.717546
+>> spatial_index.h - compute_cells takes 0.288494 seconds | start: 12.717815 end: 13.006309
+>> spatial_index.h - compute_cell_index takes 0.092597 seconds | start: 13.044470 end: 13.137068
+>> spatial_index (compute_global_point_offset) - MPI_Exscan takes 0.000013 seconds | start: 13.137153 end: 13.137166
+>> spatial_index.h - compute_global_point_offset takes 0.000028 seconds | start: 13.137149 end: 13.137177
+>> spatial_index.h - sort_by_cell takes 0.383970 seconds | start: 13.137185 end: 13.521155
+	Distributing points... [OK] in 12.166956
+>> spatial_index.h - SpatialIndex takes 13.577210 seconds | start: 0.028065 end: 13.605275
+Clustering...
+>> hpdbscan.h - local_dbscan takes 1.236332 seconds | start: 13.605735 end: 14.842067
+	DBSCAN.. [OK] in 1.236415
+>> hpdbscan.h (merge_halos) - MPI_Alltoall takes 0.000131 seconds | start: 14.842230 end: 14.842361
+>> hpdbscan.h (merge_halos) - MPI_Alltoallv takes 0.000277 seconds | start: 14.842393 end: 14.842670
+>> hpdbscan.h - merge_halos takes 0.000468 seconds | start: 14.842223 end: 14.842691
+>> hpdbscan.h (distribute_rules) - MPI_Alltoall takes 0.000093 seconds | start: 14.842705 end: 14.842798
+>> hpdbscan.h (distribute_rules) - MPI_Alltoallv takes 0.000340 seconds | start: 14.842821 end: 14.843161
+>> hpdbscan.h - distribute_rules takes 0.000474 seconds | start: 14.842705 end: 14.843179
+	Merging halos... [OK] in 0.000969
+>> hpdbscan.h (#pragma omp parallel for) - apply_rules takes 0.004269 seconds | start: 14.843213 end: 14.847482
+	Appyling rules... [OK] in 0.004342
+>> spatial_index (recover_initial_order) - 1° MPI_Alltoall takes 0.005946 seconds | start: 14.978209 end: 14.984155
+>> spatial_index (recover_initial_order) - 2° MPI_Alltoallv takes 0.014301 seconds | start: 14.985210 end: 14.999511
+>> spatial_index (recover_initial_order) - 3° MPI_Alltoallv takes 0.010370 seconds | start: 14.999602 end: 15.009972
+>> spatial_index (recover_initial_order) - 4° MPI_Alltoallv takes 0.011369 seconds | start: 15.010069 end: 15.021438
+>> spatial_index.h (#pragma omp parallel for) - recover_initial_order takes 0.006120 seconds | start: 15.022419 end: 15.028539
+>> spatial_index.h - recover_initial_order takes 0.018643 seconds | start: 15.010069 end: 15.028713
+	Recovering order... [OK] in 0.181150
+Summary...
+>> hpdbscan.h (summarize) - MPI_Gather takes 0.005863 seconds | start: 15.034549 end: 15.040412
+>> hpdbscan.h (summarize) - MPI_Gatherv takes 0.000016 seconds | start: 15.040509 end: 15.040524
+>> hpdbscan.h (summarize) - MPI_Reduce takes 0.000013 seconds | start: 15.040537 end: 15.040550
+	Clusters:       187
+	Cluster points: 374
+	Noise points:   2999626
+	Core points:    374
+>> hpdbscan.h - summarize takes 0.011969 seconds | start: 15.028810 end: 15.040779
+Total time: 15.026481
+>> write_hdf5 - MPI_Allreduce takes 0.000192 seconds | start: 15.092111 end: 15.092303
+
+============== EXECUTION TERMINATED ==============
+
+>> io.h - read_hdf5 takes 0.004713 seconds | start: 0.000000 end: 0.004713
+Computing cell space...
+>> spatial_index.h (#pragma omp parallel for) - compute_initial_order takes 0.000321 seconds | start: 0.008536 end: 0.008858
+>> spatial_index.h (#pragma omp parallel for reduction(vector_min: minimums) reduction(vector_max: maximums)) - compute_space_dimensions takes 0.001826 seconds | start: 0.008901 end: 0.010727
+>> hpdbscan.h (compute_space_dimensions) - 1° MPI_Allreduce takes 0.010552 seconds | start: 0.010771 end: 0.021323
+>> hpdbscan.h (compute_space_dimensions) - 2° MPI_Allreduce takes 0.002325 seconds | start: 0.021384 end: 0.023709
+>> spatial_index.h - compute_space_dimensions takes 0.014846 seconds | start: 0.008900 end: 0.023747
+>> spatial_index.h - compute_cell_dimensions takes 0.000000 seconds | start: 0.023756 end: 0.023756
+>> spatial_index.h - swap_dimensions takes 0.000001 seconds | start: 0.023763 end: 0.023764
+	Computing dimensions... [OK] in 0.015308
+>> spatial_index.h - compute_cells takes 0.815020 seconds | start: 0.023897 end: 0.838917
+>> spatial_index.h - compute_cell_index takes 0.118347 seconds | start: 1.030023 end: 1.148370
+	Computing cells... [OK] in 1.124553
+>> spatial_index.h - sort_by_cell takes 0.457354 seconds | start: 1.148485 end: 1.605840
+	Sorting points... [OK] in 0.491336
+>> spatial_index (compute_global_histogram) - MPI_Alltoall takes 0.049269 seconds | start: 1.681902 end: 1.731171
+>> spatial_index (compute_global_histogram) - MPI_Alltoallv takes 0.173722 seconds | start: 1.776900 end: 1.950622
+>> spatial_index.h - compute_global_histogram takes 1.055982 seconds | start: 1.681901 end: 2.737883
+>> spatial_index.h - compute_bounds takes 9.609406 seconds | start: 2.740237 end: 12.349643
+>> spatial_index (redistribute_dataset) - 1° MPI_Alltoall takes 0.177600 seconds | start: 12.439553 end: 12.617153
+>> spatial_index (redistribute_dataset) - 2° MPI_Alltoall takes 0.013086 seconds | start: 12.646025 end: 12.659111
+>> spatial_index (redistribute_dataset) - 3° MPI_Alltoall takes 0.012009 seconds | start: 12.659189 end: 12.671198
+>> spatial_index.h - redistribute_dataset takes 0.252039 seconds | start: 12.439516 end: 12.691555
+>> spatial_index.h - compute_cells takes 0.204404 seconds | start: 12.691834 end: 12.896238
+>> spatial_index.h - compute_cell_index takes 0.076929 seconds | start: 12.920873 end: 12.997802
+>> spatial_index (compute_global_point_offset) - MPI_Exscan takes 0.000019 seconds | start: 12.997880 end: 12.997900
+>> spatial_index.h - compute_global_point_offset takes 0.000033 seconds | start: 12.997877 end: 12.997910
+>> spatial_index.h - sort_by_cell takes 0.289983 seconds | start: 12.997918 end: 13.287900
+	Distributing points... [OK] in 11.671823
+>> spatial_index.h - SpatialIndex takes 13.345363 seconds | start: 0.008462 end: 13.353825
+Clustering...
+>> hpdbscan.h - local_dbscan takes 1.072272 seconds | start: 13.354228 end: 14.426500
+	DBSCAN.. [OK] in 1.072361
+>> hpdbscan.h (merge_halos) - MPI_Alltoall takes 0.000139 seconds | start: 14.426633 end: 14.426772
+>> hpdbscan.h (merge_halos) - MPI_Alltoallv takes 0.000268 seconds | start: 14.426794 end: 14.427062
+>> hpdbscan.h - merge_halos takes 0.000457 seconds | start: 14.426627 end: 14.427084
+>> hpdbscan.h (distribute_rules) - MPI_Alltoall takes 0.000148 seconds | start: 14.427096 end: 14.427243
+>> hpdbscan.h (distribute_rules) - MPI_Alltoallv takes 0.000328 seconds | start: 14.427263 end: 14.427590
+>> hpdbscan.h - distribute_rules takes 0.000517 seconds | start: 14.427095 end: 14.427613
+	Merging halos... [OK] in 0.000997
+>> hpdbscan.h (#pragma omp parallel for) - apply_rules takes 0.004164 seconds | start: 14.427644 end: 14.431808
+	Appyling rules... [OK] in 0.004228
+>> spatial_index (recover_initial_order) - 1° MPI_Alltoall takes 0.077375 seconds | start: 14.490381 end: 14.567756
+>> spatial_index (recover_initial_order) - 2° MPI_Alltoallv takes 0.014299 seconds | start: 14.568688 end: 14.582987
+>> spatial_index (recover_initial_order) - 3° MPI_Alltoallv takes 0.010369 seconds | start: 14.583054 end: 14.593423
+>> spatial_index (recover_initial_order) - 4° MPI_Alltoallv takes 0.009748 seconds | start: 14.593488 end: 14.603236
+>> spatial_index.h (#pragma omp parallel for) - recover_initial_order takes 0.004228 seconds | start: 14.604175 end: 14.608403
+>> spatial_index.h - recover_initial_order takes 0.014996 seconds | start: 14.593488 end: 14.608484
+	Recovering order... [OK] in 0.176600
+Summary...
+>> hpdbscan.h (summarize) - MPI_Gather takes 0.004887 seconds | start: 14.613224 end: 14.618111
+>> hpdbscan.h (summarize) - MPI_Gatherv takes 0.000006 seconds | start: 14.618166 end: 14.618171
+>> hpdbscan.h (summarize) - MPI_Reduce takes 0.000014 seconds | start: 14.618180 end: 14.618194
+	Clusters:       187
+	Cluster points: 374
+	Noise points:   2999626
+	Core points:    374
+>> hpdbscan.h - summarize takes 0.009746 seconds | start: 14.608535 end: 14.618281
+Total time: 14.613392
+>> write_hdf5 - MPI_Allreduce takes 0.000050 seconds | start: 14.659418 end: 14.659468
+
+============== EXECUTION TERMINATED ==============
+
