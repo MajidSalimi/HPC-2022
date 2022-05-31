@@ -85,16 +85,13 @@ int main(int argc, char **argv)
     //binary_tree(arr,n,myid,procs);
     //linear_pipeline_broadcast(arr,n,myid,procs);
     binomial_pipeline_broadcast(arr,n,myid,procs);
-   
-
-
     
     
+    //printArray(arraysprova,procs);
     MPI_Barrier(MPI_COMM_WORLD);
     t2_b = MPI_Wtime();
-    printf("Sono il rank %d: ",myid);
-    printArray(arr,n);
-    printf("\n");
+    //printf("Sono il rank %d: ",myid);
+    //printf("\n");
     if (myid == 0)
     {
       bcast_time[iter] = ((t2_b - t1_b) * 1000);
@@ -212,8 +209,16 @@ void binary_tree(int arr[], int n, int myid, int procs)
     MPI_Status status;
     if(myid == 0)
     {
-      MPI_Send(arr, n, MPI_INT, myid+1, 0, MPI_COMM_WORLD);
-      MPI_Send(arr, n, MPI_INT, myid+2, 0, MPI_COMM_WORLD);
+      if(procs < 3)
+      {
+        MPI_Send(arr, n, MPI_INT, myid+1, 0, MPI_COMM_WORLD);
+      }
+      else
+      {
+        MPI_Send(arr, n, MPI_INT, myid+1, 0, MPI_COMM_WORLD);
+        MPI_Send(arr, n, MPI_INT, myid+2, 0, MPI_COMM_WORLD);
+      }
+      
       //printArray(arr,n);
       //printf("\n");
     }
