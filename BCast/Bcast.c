@@ -24,6 +24,7 @@ void binary_tree(int arr[], int n, int myid, int procs);
 void binomial_tree(int arr[], int n, int myid, int procs);
 void linear_pipeline_broadcast(int arr[], int n, int myid, int procs);
 void binomial_pipeline_broadcast(int arr[], int n, int myid, int procs);
+int largest_divisor(int n);
 //void    Print_times(double[], int);
 
 int main(int argc, char **argv)
@@ -83,15 +84,16 @@ int main(int argc, char **argv)
     //ring(arr, n, myid,procs);
     //binomial_tree(arr,n,myid,procs);  
     //binary_tree(arr,n,myid,procs);
-    //linear_pipeline_broadcast(arr,n,myid,procs);
-    binomial_pipeline_broadcast(arr,n,myid,procs);
+    linear_pipeline_broadcast(arr,n,myid,procs);
+    //binomial_pipeline_broadcast(arr,n,myid,procs);
     
     
-    //printArray(arraysprova,procs);
+    
     MPI_Barrier(MPI_COMM_WORLD);
     t2_b = MPI_Wtime();
     //printf("Sono il rank %d: ",myid);
-    //printf("\n");
+    //printArray(arr,n);
+   // printf("\n");
     if (myid == 0)
     {
       bcast_time[iter] = ((t2_b - t1_b) * 1000);
@@ -324,8 +326,9 @@ void binomial_tree(int arr[], int n, int myid, int procs)
 
 void linear_pipeline_broadcast(int arr[], int n, int myid, int procs)
 {
-    int logbase=(int)log2(n);
+    int logbase=(int)largest_divisor(n);
      MPI_Status status;
+     
     if(myid == 0)
     {
       //printf("Array master:\n");
@@ -342,19 +345,28 @@ void linear_pipeline_broadcast(int arr[], int n, int myid, int procs)
      
     else if(myid == procs-1)
     {
+      
       for(int i=0;i<n;i=i+logbase)
       {
         MPI_Recv(arr+i, logbase, MPI_INT, myid-1, 0, MPI_COMM_WORLD, &status);
+        
       }
+     //printf("Array ricevuto rank %d:\n",myid);
+      //printArray(arr,n);
+      //printf("\n");
     }
       
     else
     {
+      
       for(int i=0;i<n;i=i+logbase)
       {
+        
         MPI_Recv(arr+i, logbase, MPI_INT, myid-1, 0, MPI_COMM_WORLD, &status);
+        
         MPI_Send(arr+i, logbase, MPI_INT, myid+1, 0, MPI_COMM_WORLD);
       }
+       
       //printf("Array ricevuto rank %d:\n",myid);
       //printArray(arr,n);
       //printf("\n");
@@ -366,7 +378,7 @@ void binomial_pipeline_broadcast(int arr[], int n, int myid, int procs)
  int recv=-1;
   int done=-1;
   int send=-1;
-   int logbase=(int)log2(n);
+   int logbase=(int)largest_divisor(n);
   MPI_Status status;
   for(int i=(int)log2(procs);i>=0;i--)
       {
@@ -454,4 +466,20 @@ void binomial_pipeline_broadcast(int arr[], int n, int myid, int procs)
             }*/
           }
       }
+}
+
+int largest_divisor(int n) 
+{
+
+	int i;
+  int which=1;
+	for (i = n - 1; i >= 1; --i) {
+		if (n % i == 0)
+      if(which > 0)
+        which=which-1;
+      else
+			  return i;
+	}
+	return 1;
+
 }
