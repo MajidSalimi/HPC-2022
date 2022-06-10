@@ -43,9 +43,16 @@ mpicc Bcast.c -lm -o Bcast.out
 ```
 And now we can execute **Bcast.out**:
 ```
-mpirun -np X --allow-run-as-root Bcast.out *size_of_data* *max_iter* *sleep_time*
+mpirun -np X --allow-run-as-root Bcast.out *size_of_data* *max_iter* *sleep_time* *type of communication broadcast*
 ```
 Where:
   - **size_of_data**: Size of the data to broadcast, the data will be in powers of 2.
   - **max_iter**: Number of iterations to repeat the procedure.
   - **sleep_time**: Wait time between iterations (microseconds).
+  - **type of communication broadcast**: choiche from 0 to 1 where: <br/>
+    0 - MPI_Bcast <br/>
+    1 - Ring <br/>
+    2 - Binomial_tree <br/>
+    3 - Binary_tree <br/>
+    4 - Linear_pipeline_broadcast <br/>
+    5 - Binomial_pipeline_broadcast <br/>
