@@ -29,7 +29,7 @@ int largest_divisor(int n);
 
 int main(int argc, char **argv)
 {
-  int i, procs, myid, *arr, n, err, max_iter ,iter = 0;
+  int i, procs, myid, *arr, n, err, max_iter ,iter = 0, choiche=0;
   long n_bytes, sleep_time;
   int pow_2;
   double t1_b, t2_b;
@@ -44,19 +44,22 @@ int main(int argc, char **argv)
   MPI_Comm_size(MPI_COMM_WORLD, &procs);
   MPI_Comm_rank(MPI_COMM_WORLD, &myid);
 
-  if (myid == 0)
+ 
+  if (argc < 5)
   {
-    if (argc < 4)
+    if (myid == 0)
     {
-      printf("\n Invalid Number of Arguements.\n,\n");
-      MPI_Finalize();
-      return 0;
+      printf("\n Invalid Number of Arguements.\n");
     }
+    MPI_Finalize();
+    return 0;
   }
+  
 
   pow_2 = atoi(argv[1]);      //size of the data to broadcast: n_bytes= 2^pow_2
   max_iter = atoi(argv[2]);   //number of iterations to repeat the procedure
   sleep_time = atoi(argv[3]); //Wait time between iterations (microseconds)
+  choiche = atoi(argv[4]);
 
   n_bytes = pow(2, pow_2);
   n = n_bytes / sizeof(int);
@@ -80,11 +83,33 @@ int main(int argc, char **argv)
     MPI_Barrier(MPI_COMM_WORLD);
     t1_b = MPI_Wtime();
     
-    //MPI_Bcast(arr, n, MPI_INT, 0, MPI_COMM_WORLD);
+    switch(choiche)
+    {
+      case 0:
+        MPI_Bcast(arr, n, MPI_INT, 0, MPI_COMM_WORLD); break;
+      case 1:
+        ring(arr, n, myid,procs); break;
+      case 2:
+        binomial_tree(arr,n,myid,procs); break;
+      case 3:
+        binary_tree(arr,n,myid,procs); break;
+      case 4:
+        linear_pipeline_broadcast(arr,n,myid,procs); break;
+      case 5:
+        binomial_pipeline_broadcast(arr,n,myid,procs);  break;
+      default: 
+        if(myid == 0)
+          printf("Wrong choice, you must pick a number from 0 to 5\n");
+          free(arr);
+          MPI_Finalize();
+          return 0;
+        break;
+    }
+      
     //ring(arr, n, myid,procs);
     //binomial_tree(arr,n,myid,procs);  
     //binary_tree(arr,n,myid,procs);
-    linear_pipeline_broadcast(arr,n,myid,procs);
+    //linear_pipeline_broadcast(arr,n,myid,procs);
     //binomial_pipeline_broadcast(arr,n,myid,procs);
     
     
