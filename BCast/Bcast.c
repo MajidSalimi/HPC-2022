@@ -472,15 +472,14 @@ void check_broadcast(int arr[], int n, int myid, int procs)
   {
     if(arr[i]!=arr2[i])
     {
-        //printf("arr 1 %d, arr 2 %d\n",arr[i],arr2[i]);
         a=1;
     }
       
   }
   if(a==1)
-    printf("Hai fallito!\n");
+    printf("Matrices are different!\n");
   else
-    printf("Miglioramento riuscito con successo\n");
+    printf("Matrices are the same\n");
 
 }
 
