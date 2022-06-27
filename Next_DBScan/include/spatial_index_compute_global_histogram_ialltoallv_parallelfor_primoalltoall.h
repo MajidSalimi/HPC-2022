@@ -218,6 +218,7 @@ private:
 
     #ifdef WITH_MPI
     CellHistogram compute_global_histogram() {
+    	auto start_timestamp = getTime();
         // fetch cell histograms across all nodes
         int send_counts[m_size];
         int send_displs[m_size];
@@ -268,7 +269,7 @@ private:
         }
         // remember the new globally last cell
         m_last_cell = global_histogram.rbegin()->first + 1;
-
+	printDiffTime("spatial_index (compute_global_histogram) - end of function", start_timestamp);
         return global_histogram;
     }
 
