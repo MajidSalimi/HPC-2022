@@ -218,6 +218,7 @@ private:
 
     #ifdef WITH_MPI
     CellHistogram compute_global_histogram() {
+    	auto start_timestamp = getTime();
         // fetch cell histograms across all nodes
         int send_counts[m_size];
         int send_displs[m_size];
@@ -229,10 +230,11 @@ private:
             send_counts[i] = m_cell_histogram.size() * 2;
             send_displs[i] = 0;
         }
+	auto start_timestamp_mpi = getTime();
         MPI_Ialltoall(send_counts, 1, MPI_INT, recv_counts, 1, MPI_INT, MPI_COMM_WORLD, &send_requests);
 
         MPI_Wait(&send_requests, MPI_STATUS_IGNORE);
-
+	printDiffTime("spatial_index (compute_global_histogram) - 1° MPI_Ialltoall", start_timestamp_mpi);
         // ... based on this information we can calculate the displacements into the buffer
         size_t entries_count = 0;
         for (int i = 0; i < m_size; ++i) {
@@ -251,13 +253,14 @@ private:
         // exchange the histograms
         std::vector<size_t> recv_buffer(entries_count);
         MPI_Request request;
+	start_timestamp_mpi = getTime();
         MPI_Ialltoallv(
             send_buffer.data(), send_counts, send_displs, MPI_UNSIGNED_LONG,
             recv_buffer.data(), recv_counts, recv_displs, MPI_UNSIGNED_LONG, MPI_COMM_WORLD, &request
         );
 
         MPI_Wait(&request, MPI_STATUS_IGNORE);
-
+	printDiffTime("spatial_index (compute_global_histogram) - 1° MPI_Ialltoallv", start_timestamp_mpi);
         // sum-up the entries into a global histogram
         CellHistogram global_histogram;
         #pragma omp parallel for
@@ -266,7 +269,7 @@ private:
         }
         // remember the new globally last cell
         m_last_cell = global_histogram.rbegin()->first + 1;
-
+	printDiffTime("spatial_index (compute_global_histogram) - end of function", start_timestamp);
         return global_histogram;
     }
 

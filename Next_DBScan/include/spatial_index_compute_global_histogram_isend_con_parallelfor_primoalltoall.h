@@ -231,13 +231,15 @@ private:
     }
 
     CellHistogram compute_global_histogram() {
+	auto start_timestamp = getTime();
         // fetch cell histograms across all nodes
         int send_counts = m_cell_histogram.size() * 2;;
         int recv_counts[m_size];
 
         MPI_Request recv_requests_elements[m_size];
         MPI_Request send_requests_elements[m_size];
-        recv_requests_elements[m_rank] = MPI_REQUEST_NULL;     
+        recv_requests_elements[m_rank] = MPI_REQUEST_NULL;    
+	auto start_timestamp_mpi = getTime();
         for (int i = 0; i < m_size; i++){
             if (i != m_rank){
                 MPI_Isend(&send_counts, 1, MPI_INT, i, TAG, MPI_COMM_WORLD, &send_requests_elements[i]);
@@ -257,7 +259,7 @@ private:
                 entries_count += recv_counts[index];
             }
         }
-
+	printDiffTime("spatial_index (compute_global_histogram) - 1° MPI_Isend", start_timestamp_mpi);
         // serialize the local histogram into a flat buffer
         std::vector<size_t> send_buffer(m_cell_histogram.size() * 2);
         size_t send_buffer_index = 0;
@@ -272,7 +274,8 @@ private:
         MPI_Request recv_requests[m_size];
         MPI_Request send_requests[m_size];
         recv_requests[m_rank] = MPI_REQUEST_NULL;
-        size_t * recv_buffer_address = recv_buffer.data();        
+        size_t * recv_buffer_address = recv_buffer.data();     
+	start_timestamp_mpi = getTime();
         for (int i = 0; i < m_size; i++){
             if (i != m_rank){
                 MPI_Isend(send_buffer.data(), send_counts, MPI_UNSIGNED_LONG, i, TAG, MPI_COMM_WORLD, &send_requests[i]);
@@ -303,9 +306,10 @@ private:
             }
             
         }
+	printDiffTime("spatial_index (compute_global_histogram) - 2° MPI_Isend", start_timestamp_mpi);
         // remember the new globally last cell
         m_last_cell = global_histogram.rbegin()->first + 1;
-
+	printDiffTime("spatial_index (compute_global_histogram) - End of function", start_timestamp);
         return global_histogram;
     }
 
