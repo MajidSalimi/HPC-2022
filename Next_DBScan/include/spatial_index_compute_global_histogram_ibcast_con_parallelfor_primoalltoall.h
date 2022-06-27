@@ -230,6 +230,7 @@ private:
     }
 
     CellHistogram compute_global_histogram() {
+	auto start_timestamp = getTime();
         // fetch cell histograms across all nodes
         int send_counts = m_cell_histogram.size() * 2;
         int recv_counts[m_size];
@@ -237,6 +238,7 @@ private:
         // determine the number of entries in each process' histogram
 
         MPI_Request recv_requests_elements[m_size];
+	auto start_timestamp_mpi = getTime();
         for (int i = 0; i < m_size; i++){
             if (i != m_rank){
                 MPI_Ibcast(&recv_counts[i], 1, MPI_INT, i, MPI_COMM_WORLD, &recv_requests_elements[i]);
@@ -255,6 +257,7 @@ private:
                 entries_count += recv_counts[index];
             }
         }
+	printDiffTime("spatial_index (compute_global_histogram) - 1° MPI_Ibcast", start_timestamp_mpi);
 
         // serialize the local histogram into a flat buffer
         std::vector<size_t> send_buffer(m_cell_histogram.size() * 2);
@@ -269,7 +272,8 @@ private:
         std::vector<size_t> recv_buffer(entries_count);
         MPI_Request requests[m_size];
         
-        size_t * recv_buffer_address = recv_buffer.data();        
+        size_t * recv_buffer_address = recv_buffer.data(); 
+	start_timestamp_mpi = getTime();
         for (int i = 0; i < m_size; i++){
             if (i != m_rank){
                 MPI_Ibcast(recv_buffer_address, recv_counts[i], MPI_UNSIGNED_LONG, i, MPI_COMM_WORLD, &requests[i]);
@@ -301,9 +305,11 @@ private:
                 }
             }
         }
+	printDiffTime("spatial_index (compute_global_histogram) - 2° MPI_Ibcast", start_timestamp_mpi);
         // remember the new globally last cell
         m_last_cell = global_histogram.rbegin()->first + 1;
-
+	    
+	printDiffTime("spatial_index (compute_global_histogram) - end of function", start_timestamp);
         return global_histogram;
     }
 
