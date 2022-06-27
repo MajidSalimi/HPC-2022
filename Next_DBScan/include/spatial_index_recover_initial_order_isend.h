@@ -770,6 +770,7 @@ public:
     }
 
     void recover_initial_order(Clusters& clusters) {
+	auto start_timestamp = getTime();
         const hsize_t dimensions = m_data.m_chunk[1];
 
         #ifdef WITH_MPI
@@ -801,7 +802,8 @@ public:
 
         MPI_Request recv_requests_elements[m_size];
         MPI_Request send_requests_elements[m_size];
-     
+	    
+     	auto start_timestamp_mpi = getTime();
         for (int i = 0; i < m_size; i++){
                 MPI_Isend(&send_counts[i], 1, MPI_INT, i, TAG, MPI_COMM_WORLD, &send_requests_elements[i]);
                 MPI_Irecv(&recv_counts[i], 1, MPI_INT, i, TAG, MPI_COMM_WORLD, &recv_requests_elements[i]);
@@ -823,6 +825,7 @@ public:
             recv_counts_points[i] = recv_counts[i] * dimensions;
 
         }
+	printDiffTime("spatial_index (recover_initial_order) - 1° Isend", start_timestamp_mpi);
 
         // allocate new buffers for the points and the order vectors
         T* point_buffer = new T[total_recv_items * dimensions];
@@ -845,6 +848,11 @@ public:
         ssize_t * cluster_buffer_data = cluster_buffer.data();
         int accumulator = 0;
         int accumulator2 = 0;
+	    
+	start_timestamp_mpi = getTime();
+	auto start_timestamp_mpi2 = getTime();
+	auto start_timestamp_mpi3 = getTime();
+	    
         for (int i = 0; i < m_size; i++){
             MPI_Isend(static_cast<T*>(m_data.m_p) + accumulator, send_counts_points[i], MPI_Types<T>::map(), i, TAG, MPI_COMM_WORLD, &send_requests_data[i]);
             MPI_Irecv(point_buffer + accumulator2, recv_counts_points[i], MPI_Types<T>::map(), i, TAG, MPI_COMM_WORLD, &recv_requests_data[i]);
@@ -865,13 +873,16 @@ public:
         // assign the new data
         m_data.m_chunk[0] = total_recv_items;
         MPI_Waitall(m_size, recv_requests_data, MPI_STATUS_IGNORE);
+	printDiffTime("spatial_index (recover_initial_order) - 2° Isend", start_timestamp_mpi);
         delete[] static_cast<T*>(m_data.m_p);
         m_data.m_p = point_buffer;
         point_buffer = nullptr;
         MPI_Waitall(m_size, recv_initial_order_requests, MPI_STATUS_IGNORE);
+	printDiffTime("spatial_index (recover_initial_order) - 3° Isend", start_timestamp_mpi);
         m_initial_order.swap(order_buffer);
         order_buffer.clear();
         MPI_Waitall(m_size, recv_cluster_requests, MPI_STATUS_IGNORE);
+	printDiffTime("spatial_index (recover_initial_order) - 4° Isend", start_timestamp_mpi);
         clusters.swap(cluster_buffer);
         cluster_buffer.clear();
         #endif
@@ -897,6 +908,7 @@ public:
         m_initial_order.swap(local_order_buffer);
         delete[] static_cast<T*>(m_data.m_p);
         m_data.m_p = local_point_buffer;
+	printDiffTime("spatial_index (recover_initial_order) - end of function", start_timestamp);
     }
 };
 
