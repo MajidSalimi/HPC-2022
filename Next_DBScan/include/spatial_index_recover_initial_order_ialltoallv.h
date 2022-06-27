@@ -861,6 +861,7 @@ public:
 	printDiffTime("spatial_index (recover_initial_order) - 3° MPI_Ialltoallv", start_timestamp_mpi3);
         clusters.swap(cluster_buffer);
         cluster_buffer.clear();
+	
         #endif
 
         // only reordering step needed for non-MPI implementation and final local reordering for MPI version
@@ -884,6 +885,7 @@ public:
         m_initial_order.swap(local_order_buffer);
         delete[] static_cast<T*>(m_data.m_p);
         m_data.m_p = local_point_buffer;
+	printDiffTime("spatial_index (recover_initial_order) - end of function", start_timestamp);
     }
 };
 
