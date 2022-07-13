@@ -10,22 +10,21 @@ double  Mean(double[], int);
 double  Median(double[], int);
 static int rank, nprocs;
 
-std::vector<int> convert10tob(int w, int N, int b)
-{
+std::vector<int> convert10tob(int w, int N, int b) {
+
 	std::vector<int> v(w);
 	int i = 0;
+
 	while(N) {
 	  v[i++] = (N % b);
 	  N /= b;
 	}
-//	std::reverse(v.begin(), v.end());
+
 	return v;
 }
 
 void alltoall_radix_r(int r, char *sendbuf, int sendcount, MPI_Datatype sendtype, char *recvbuf, int recvcount, MPI_Datatype recvtype,  MPI_Comm comm) {
 	
-    double ts = MPI_Wtime();
-	double s = MPI_Wtime();
     int rank, nprocs;
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &nprocs);
@@ -41,11 +40,8 @@ void alltoall_radix_r(int r, char *sendbuf, int sendcount, MPI_Datatype sendtype
     // local rotation
     std::memcpy(recvbuf, &sendbuf[rank*unit_size], (nprocs - rank)*unit_size);
     std::memcpy(&recvbuf[(nprocs - rank)*unit_size], sendbuf, rank*unit_size);
-    double e = MPI_Wtime();
-    double first_time = e - s;
 
     // convert rank to base r representation
-    s = MPI_Wtime();
     int* rank_r_reps = (int*) malloc(nprocs * w * sizeof(int));
 	for (int i = 0; i < nprocs; i++) {
 		std::vector<int> r_rep = convert10tob(w, i, r);
@@ -60,9 +56,8 @@ void alltoall_radix_r(int r, char *sendbuf, int sendcount, MPI_Datatype sendtype
 	int nblocks_perstep[comm_steps];
 	int istep = 0;
 
-	char* temp_buffer = (char*)malloc(nlpow * unit_size); // temporary buffer
-	e = MPI_Wtime();
-	double conv_time = e - s;
+    // temporary buffer
+	char* temp_buffer = (char*)malloc(nlpow * unit_size); 
 
 	// communication steps = (r - 1)w - d
 	double pre_time = 0, comm_time = 0, replace_time = 0;
@@ -72,38 +67,28 @@ void alltoall_radix_r(int r, char *sendbuf, int sendcount, MPI_Datatype sendtype
 
     		// get the sent data-blocks
     		// copy blocks which need to be sent at this step
-    		s = MPI_Wtime();
     		di = 0;
     		ci = 0;
     		for (int i = 0; i < nprocs; i++) {
-    			if (rank_r_reps[i*w + x] == z){
+    			if (rank_r_reps[i*w + x] == z) {
     				sent_blocks[di++] = i;
     				memcpy(&temp_buffer[unit_size*ci++], &recvbuf[i*unit_size], unit_size);
     			}
     		}
     		nblocks_perstep[istep++] = di;
-    		e = MPI_Wtime();
-    		pre_time += e - s;
 
     		// send and receive
-    		s = MPI_Wtime();
     		int distance = z * pow(r, x);
     		int recv_proc = (rank - distance + nprocs) % nprocs; // receive data from rank - 2^step process
     		int send_proc = (rank + distance) % nprocs; // send data from rank + 2^k process
-    		long long comm_size = di * unit_size;
+    		int comm_size = di * unit_size;
     		MPI_Sendrecv(temp_buffer, comm_size, MPI_CHAR, send_proc, 0, sendbuf, comm_size, MPI_CHAR, recv_proc, 0, comm, MPI_STATUS_IGNORE);
-    		e = MPI_Wtime();
-    		comm_time += e - s;
 
-    		s = MPI_Wtime();
     		// replace with received data
-    		for (int i = 0; i < di; i++)
-    		{
+    		for (int i = 0; i < di; i++) {
     			long long offset = sent_blocks[i] * unit_size;
     			memcpy(recvbuf+offset, sendbuf+(i*unit_size), unit_size);
     		}
-    		e = MPI_Wtime();
-    		replace_time += e - s;
     	}
     }
 
@@ -111,26 +96,12 @@ void alltoall_radix_r(int r, char *sendbuf, int sendcount, MPI_Datatype sendtype
     free(temp_buffer);
 
     // local rotation
-    s = MPI_Wtime();
-	for (int i = 0; i < nprocs; i++)
-	{
+	for (int i = 0; i < nprocs; i++) {
 		int index = (rank - i + nprocs) % nprocs;
 		memcpy(&sendbuf[index*unit_size], &recvbuf[i*unit_size], unit_size);
 	}
+
 	memcpy(recvbuf, sendbuf, nprocs*unit_size);
-	e = MPI_Wtime();
-	double second_time = e - s;
-
-
-    double te = MPI_Wtime();
-	double max_time = 0;
-	double total_time = te - ts;
-	MPI_Allreduce(&total_time, &max_time, 1, MPI_DOUBLE, MPI_MAX, comm);
-
-	if (total_time == max_time) {
-		std::cout << "[radixRbruck] " << " [" << nprocs << " " << sendcount << "] " <<  total_time << ", " << first_time << ", " << conv_time << ", "
-				<< pre_time << ", " << comm_time << ", " << replace_time << ", " << second_time << std::endl;
-	}
 }
 
 int main(int argc, char **argv) {
@@ -149,11 +120,17 @@ int main(int argc, char **argv) {
   	int max_iter = atoi(argv[2]);   //number of iterations to repeat the procedure
   	int sleep_time = atoi(argv[3]); //Wait time between iterations (microseconds)
 
+    if (rank == 0) {
+        if (argc < 4) {
+            std::cout << "\n Invalid Number of Arguements.\n,\n";
+            MPI_Finalize();
+            return 0;
+        }
+    }
+
   	int n_bytes = n * sizeof(int);
     double alltoall_time[max_iter];
-    int *arr = (int*)malloc(n*sizeof(int));
 
-    
     while (iter < max_iter) {
 
         int* send_buffer = new int[n];
@@ -163,11 +140,24 @@ int main(int argc, char **argv) {
             send_buffer[i] = rank * 100 * n + i * 100;
         }
 
-        printf("Process %d send\n", rank);
-        for (int i=0; i<n; i++) {
-            printf("%d ", send_buffer[i]);
-        }
-        printf("\n");
+        /* code section to print array
+		
+		MPI_Barrier(MPI_COMM_WORLD);
+        for(int i = 0; i < nprocs; i++) {
+        	if(i == rank) {
+                printf("Rank %d send: ", rank);
+                // print entire array
+                for(int j = 0; j < n; j++) {
+                    printf("%d ", send_buffer[j]);
+                }
+                printf("\n");
+                fflush(stdout);
+            }
+
+            MPI_Barrier(MPI_COMM_WORLD);
+		}
+		printf("\n");
+		*/
 
         MPI_Barrier(MPI_COMM_WORLD);
         t1_b = MPI_Wtime();
@@ -175,10 +165,12 @@ int main(int argc, char **argv) {
         MPI_Barrier(MPI_COMM_WORLD);
         t2_b = MPI_Wtime();
 
+        /* code section to print array
+
         MPI_Barrier(MPI_COMM_WORLD);
         for(int i = 0; i < nprocs; i++) {
         	if(i == rank) {
-                printf("Rank %d: ", rank);
+                printf("Rank %d received: ", rank);
                 // print entire array
                 for(int j = 0; j < n; j++) {
                     printf("%d ", recv_buffer[j]);
@@ -189,15 +181,17 @@ int main(int argc, char **argv) {
 
             MPI_Barrier(MPI_COMM_WORLD);
 		}
+		*/
 
         delete[] send_buffer;
 	    delete[] recv_buffer;
+
         if (rank == 0) {
             alltoall_time[iter] = ((t2_b - t1_b) * 1000);
         }
+
         usleep(sleep_time);
         iter++;
-    
     }
     
     MPI_Barrier(MPI_COMM_WORLD);
@@ -206,14 +200,13 @@ int main(int argc, char **argv) {
         std::cout << "\nMean of communication times: " << Mean(alltoall_time, max_iter) << "ms";
         std::cout << "\nMedian of communication times: " << Median(alltoall_time, max_iter) << "ms\n";
     } 
-    
-    
+
 	MPI_Finalize();
 	return 0;
-
 }
 
 double Mean(double a[], int n) {
+
   double sum = 0.0;
   for (int i = 0; i < n; i++)
     sum += a[i];
@@ -222,6 +215,7 @@ double Mean(double a[], int n) {
 }
 
 double Median(double a[], int n) {
+
   std::sort(a, a + n);
   if (n % 2 != 0)
     return a[n / 2];
