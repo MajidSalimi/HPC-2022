@@ -1,6 +1,6 @@
 # AllToAll
 
-In this project will be shown some algorithms that perform the operation of the All-to-all operation using the OpenMPI library. The algorithm were taken from scientific papers that have already dealt with the problem of optimization of the AllToAll communication. All-to-all is the most general communication pattern. For *0 <= i, j < p*, message *m(i,j)* is the message that is initially stored on node *i* and has to be delivered to node *j*.
+In this project will be shown some algorithms that perform the operation of the All-to-all operation using the OpenMPI library. The algorithm were taken from scientific papers that have already dealt with the problem of optimization of the All-to-all communication. All-to-all is the most general communication pattern. For *0 <= i, j < p*, message *m(i,j)* is the message that is initially stored on node *i* and has to be delivered to node *j*.
 
 ![All to All](img/All-to-All.png)
 
