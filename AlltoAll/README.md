@@ -47,5 +47,5 @@ mpic++ <ex*.c> -lm -o <ex*>
 ### To run
 
 ```
-mpirun -n nprocs --allow-run-as-root --oversubscribe <data_size> <num_iterations> <delay_between_iterations>
+mpirun -n nprocs --allow-run-as-root --oversubscribe ex* <data_size> <num_iterations> <delay_between_iterations>
 ```
