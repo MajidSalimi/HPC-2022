@@ -41,11 +41,11 @@ The previous implementations receive elements into an in termediate buffer which
 ### Compile
 
 ```
-mpic++ <ex*.c> -lm -o <ex*>
+mpic++ <alltoall_*.cpp> -lm -o a.out
 ```
 
 ### To run
 
 ```
-mpirun -n nprocs --allow-run-as-root --oversubscribe ex* <data_size> <num_iterations> <delay_between_iterations>
+mpirun -n nprocs --allow-run-as-root --oversubscribe a.out <data_size> <num_iterations> <delay_between_iterations>
 ```
