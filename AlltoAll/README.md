@@ -27,13 +27,6 @@ This algorithm is divided in three phases.
 - Each processor *p* rotates its *jth* data block *j* steps to the right in a cyclical manner. This rotation is implemented by interprocessor communication.
 - Each processor *p* independently rotates its *n* data blocks *i* steps downwards in a cyclical manner.
 
-## AllToAll Ring
-
-This algorithm achieves the AllToAll operation using the ring communication pattern.
-To perform this operation, every node sends *p - 1* pieces of data, each of size *m*. These pieces of data are identified by pairs of integers of the form *{i, j}*, where *i* is the source of the message and *j* is its final destination. First, each node sends all pieces of data as one consolidated message of size *m(p - 1)* to one of its neighbors (all nodes communicate in the same direction). Of the *m(p - 1)* words of data received by a node in this step, one m-word packet belongs to it. Therefore, each node extracts the information meant for it from the data received, and forwards the remaining *(p - 2)* pieces of size *m* each to the next node. This process continues for *p - 1* steps.
-
-![Ring](img/ring.png)
-
 ## AllToAll Zero copy
 
 The previous implementations receive elements into an in termediate buffer which is then unpacked into the *recvbuf* before the next communication round. It would be desirable to eliminate this overhead. For instance, a received element which will have to be sent further on in a later communication round could remain in and be sent directly out of the intermediate buffer with no need for unpacking into the *recvbuf*. In general, elements for which the number of set bits *k' > k* in *j* is even will be received into *recvbuf*, and elements with an odd number of set bits *k' > k* will be received into the intermediate buffer.
