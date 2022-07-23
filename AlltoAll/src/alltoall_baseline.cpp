@@ -69,11 +69,12 @@ int main(int argc, char **argv) {
   iter = 0;
   int *buffer_recv;
   buffer_recv = (int*)malloc(n*sizeof(int));
+  int number_of_data=n/procs;
 
   while (iter < max_iter) {
     MPI_Barrier(MPI_COMM_WORLD);
     t1_b = MPI_Wtime();
-    MPI_Alltoall(arr, 1, MPI_INT, buffer_recv, 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Alltoall(arr, number_of_data, MPI_INT, buffer_recv, number_of_data, MPI_INT, MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
     t2_b = MPI_Wtime();
 

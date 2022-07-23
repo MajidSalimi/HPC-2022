@@ -29,7 +29,6 @@ void alltoall_zero_copy(char *sendbuf, int sendcount, MPI_Datatype sendtype, cha
     }
 
     // 2. initial data to recv_buffer and intermediate buffer
-    double initial_start = MPI_Wtime();
     char* temp_buffer = (char*)malloc(local_size);
 	memcpy(temp_buffer, recvbuf, local_size);
 	memcpy(sendbuf, recvbuf, local_size);
@@ -120,6 +119,7 @@ int main(int argc, char **argv) {
 
   	int n_bytes = n * sizeof(int);
     double alltoall_time[max_iter];
+    int number_of_data=n/nprocs;
 
     while (iter < max_iter) {
 
@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
 
         MPI_Barrier(MPI_COMM_WORLD);
         t1_b = MPI_Wtime();
-        alltoall_zero_copy((char*)send_buffer, 1, MPI_INT, (char*)recv_buffer, 1, MPI_INT, MPI_COMM_WORLD);
+        alltoall_zero_copy((char*)send_buffer, number_of_data, MPI_INT, (char*)recv_buffer, number_of_data, MPI_INT, MPI_COMM_WORLD);
         MPI_Barrier(MPI_COMM_WORLD);
         t2_b = MPI_Wtime();
 

@@ -31,7 +31,6 @@ void alltoall_datatype(char *sendbuf, int sendcount, MPI_Datatype sendtype, char
     // 2. exchange data with log(P) steps
  	for (int k = 1; k < nprocs; k <<= 1) {
  		// 1) create data type
-		double create_datatype_start = MPI_Wtime();
 		int displs[(nprocs+1)/2];
 		int sendb_num = 0;
 		for (int i = 1; i < nprocs; i++) {
@@ -43,7 +42,6 @@ void alltoall_datatype(char *sendbuf, int sendcount, MPI_Datatype sendtype, char
 		MPI_Type_commit(&send_type);
 
 		// 2) exchange data
-		double comm_start = MPI_Wtime();
 		int recv_proc = (rank + k) % nprocs; // receive data from rank + 2^k process
 		int send_proc = (rank - k + nprocs) % nprocs; // send data from rank - 2^k process
 		MPI_Sendrecv(recvbuf, 1, send_type, send_proc, 0, sendbuf, 1, send_type, recv_proc, 0, comm, MPI_STATUS_IGNORE);
@@ -110,10 +108,10 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 		*/
-
+        int number_of_data=n/nprocs;
         MPI_Barrier(MPI_COMM_WORLD);
         t1_b = MPI_Wtime();
-        alltoall_datatype((char*)send_buffer, 1, MPI_INT, (char*)recv_buffer, 1, MPI_INT, MPI_COMM_WORLD);
+        alltoall_datatype((char*)send_buffer, number_of_data, MPI_INT, (char*)recv_buffer, number_of_data, MPI_INT, MPI_COMM_WORLD);
         MPI_Barrier(MPI_COMM_WORLD);
         t2_b = MPI_Wtime();
 

@@ -130,6 +130,7 @@ int main(int argc, char **argv) {
 
   	int n_bytes = n * sizeof(int);
     double alltoall_time[max_iter];
+    int number_of_data=n/nprocs;
 
     while (iter < max_iter) {
 
@@ -161,7 +162,7 @@ int main(int argc, char **argv) {
 
         MPI_Barrier(MPI_COMM_WORLD);
         t1_b = MPI_Wtime();
-        alltoall_radix_r(3, (char*)send_buffer, 1, MPI_INT, (char*)recv_buffer, 1, MPI_INT, MPI_COMM_WORLD);
+        alltoall_radix_r(4, (char*)send_buffer, number_of_data, MPI_INT, (char*)recv_buffer, number_of_data, MPI_INT, MPI_COMM_WORLD);
         MPI_Barrier(MPI_COMM_WORLD);
         t2_b = MPI_Wtime();
 
